@@ -1,13 +1,15 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 
+import CustomBottomTab from '@/components/CustomBottomTab';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
+  const pathname = usePathname(); // e.g. "/screens/dashboard"
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -17,6 +19,9 @@ export default function RootLayout() {
     // Async font loading only occurs in development.
     return null;
   }
+
+  
+  const showTab = pathname.startsWith('/screens');
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -34,6 +39,7 @@ export default function RootLayout() {
           <Stack.Screen name="screens" />
         </Stack>
         <StatusBar style="auto" />
+        {showTab && <CustomBottomTab />}
       </View>
 
     </ThemeProvider>

@@ -14,6 +14,8 @@ export default function AuthenticationLayout() {
       }}
     >
       <Stack.Screen name="login/LoginScreen" />
+      <Stack.Screen name="register/RegisterScreen" />
+      <Stack.Screen name="profile/ProfileScreen" />
     </Stack>
   );
 } 

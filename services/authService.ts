@@ -19,3 +19,20 @@ export const login = async (user: User) => {
     throw error.response?.data || error.message;
   }
 };
+
+export const register = async (user: User) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}${ENDPOINTS.REGISTER}`,
+      JSON.stringify(user),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error.message;
+  }
+};

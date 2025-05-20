@@ -1,36 +1,40 @@
-import { login } from '@/services/authService';
+import { register } from '@/services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Button, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, Text, TextInput, View } from 'react-native';
 
-export default function Login() {
+export default function Register() {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     try {
-      const user = { email, password };
-      const result = await login(user);
-
-      const token = result.token; 
+      const result = await register({ username, email, password });
+      const token = result.token;
       if (token) {
-        await AsyncStorage.setItem('authToken', token); 
-        router.replace('/authentication/profile/ProfileScreen'); 
-        console.log('Token saved:', token);
+        await AsyncStorage.setItem('authToken', token);
+        router.replace('/authentication/profile/ProfileScreen');
       } else {
         throw 'Token not found in response';
       }
     } catch (err) {
-      console.error('Login failed:', err);
-      Alert.alert('Error', typeof err === 'string' ? err : 'Login failed');
+      Alert.alert('Error', 'Registration failed');
     }
   };
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <View style={{ width: '80%' }}>
-        <Text style={{ fontSize: 24, marginBottom: 20, textAlign: 'center' }}>Login Page</Text>
+        <Text style={{ fontSize: 24, marginBottom: 20, textAlign: 'center' }}>Register</Text>
+
+        <TextInput
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+          style={{ borderWidth: 1, marginVertical: 10, padding: 8, borderRadius: 6 }}
+        />
 
         <TextInput
           placeholder="Email"
@@ -49,13 +53,8 @@ export default function Login() {
           style={{ borderWidth: 1, marginVertical: 10, padding: 8, borderRadius: 6 }}
         />
 
-        <Button title="Login" onPress={handleLogin} />
+        <Button title="Register" onPress={handleRegister} />
       </View>
-      <TouchableOpacity onPress={() => router.push('/authentication/register/RegisterScreen')}>
-          <Text style={{ marginTop: 20, color: 'blue', textAlign: 'center' }}>
-            New here? Register now
-          </Text>
-        </TouchableOpacity>
     </View>
   );
 }

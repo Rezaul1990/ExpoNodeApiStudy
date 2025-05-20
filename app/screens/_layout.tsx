@@ -14,7 +14,11 @@ export default function ScreensLayout() {
       }}
     >
       <Stack.Screen name="dashboard/DashboardScreen" />
-      <Stack.Screen name="profile/ProfileScreen" />
+      <Stack.Screen name="money/MoneyScreen" />
+      <Stack.Screen name="setting/SettingScreen" />
+      <Stack.Screen name="yourprofile/YourprofileScreen" />
+      <Stack.Screen name="classlist/ClasslistScreen" />
+      
     </Stack>
   );
 } 

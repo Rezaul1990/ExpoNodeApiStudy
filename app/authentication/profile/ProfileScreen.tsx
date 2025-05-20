@@ -7,16 +7,25 @@ import {
 } from '@/services/profileService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Alert, Button, FlatList, Image,
-  Text, TextInput, View
+  Alert,
+  Button,
+  FlatList,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [form, setForm] = useState({
     firstname: '',
     lastname: '',
@@ -44,43 +53,39 @@ export default function ProfileScreen() {
   }, []);
 
   const handleImagePick = () => {
-  Alert.alert(
-    'Select Image Source',
-    'Choose an option',
-    [
-      {
-        text: 'Camera',
-        onPress: async () => {
-          const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 1,
-          });
-          if (!result.canceled && result.assets[0]) {
-            setForm({ ...form, profilePhoto: result.assets[0].uri });
-          }
+    Alert.alert(
+      'Select Image Source',
+      'Choose an option',
+      [
+        {
+          text: 'Camera',
+          onPress: async () => {
+            const result = await ImagePicker.launchCameraAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              quality: 1,
+            });
+            if (!result.canceled && result.assets[0]) {
+              setForm({ ...form, profilePhoto: result.assets[0].uri });
+            }
+          },
         },
-      },
-      {
-        text: 'Gallery',
-        onPress: async () => {
-          const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 1,
-          });
-          if (!result.canceled && result.assets[0]) {
-            setForm({ ...form, profilePhoto: result.assets[0].uri });
-          }
+        {
+          text: 'Gallery',
+          onPress: async () => {
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              quality: 1,
+            });
+            if (!result.canceled && result.assets[0]) {
+              setForm({ ...form, profilePhoto: result.assets[0].uri });
+            }
+          },
         },
-      },
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-    ],
-    { cancelable: true }
-  );
-};
-
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const handleDelete = (id: string) => {
     Alert.alert('Confirm Deletion', 'Are you sure?', [
@@ -141,27 +146,44 @@ export default function ProfileScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: Profile }) => (
-    <View style={{
-      flex: 1, margin: 10, padding: 10, borderWidth: 1,
-      borderRadius: 10, alignItems: 'center'
-    }}>
-      <Text>First: {item.firstname}</Text>
-      <Text>Last: {item.lastname}</Text>
-      <Text>Phone: {item.phonenumber}</Text>
-      <Text>Role: {item.role}</Text>
-      {item.profilePhoto ? (
-        <Image
-          source={{ uri: `http://192.168.0.156:5000/uploads/${item.profilePhoto}` }}
-          style={{ width: 80, height: 80, borderRadius: 40, marginVertical: 10 }}
-        />
-      ) : <Text>No Photo</Text>}
+  const handleGoToDashboard = async () => {
+    const selected = profiles.find(p => p._id === selectedProfileId);
+    if (!selected) {
+      Alert.alert('Error', 'Please select a profile');
+      return;
+    }
+    await AsyncStorage.setItem('selectedProfile', JSON.stringify(selected));
+    router.push('/screens/dashboard/DashboardScreen');
+  };
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Button title="Edit" onPress={() => handleEdit(item)} />
-        <Button title="Delete" color="red" onPress={() => handleDelete(item._id!)} />
+  const renderItem = ({ item }: { item: Profile }) => (
+    <TouchableOpacity onPress={() => setSelectedProfileId(item._id!)}>
+      <View style={{
+        flex: 1,
+        margin: 10,
+        padding: 10,
+        borderWidth: selectedProfileId === item._id ? 2 : 1,
+        borderColor: selectedProfileId === item._id ? 'blue' : 'gray',
+        borderRadius: 10,
+        alignItems: 'center'
+      }}>
+        <Text>First: {item.firstname}</Text>
+        <Text>Last: {item.lastname}</Text>
+        <Text>Phone: {item.phonenumber}</Text>
+        <Text>Role: {item.role}</Text>
+        {item.profilePhoto ? (
+          <Image
+            source={{ uri: `http://192.168.0.156:5000/uploads/${item.profilePhoto}` }}
+            style={{ width: 80, height: 80, borderRadius: 40, marginVertical: 10 }}
+          />
+        ) : <Text>No Photo</Text>}
+
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Button title="Edit" onPress={() => handleEdit(item)} />
+          <Button title="Delete" color="red" onPress={() => handleDelete(item._id!)} />
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -210,6 +232,10 @@ export default function ProfileScreen() {
         style={{ marginTop: 20 }}
         contentContainerStyle={{ gap: 10 }}
       />
+
+      <View style={{ marginTop: 20 }}>
+        <Button title="Go to Dashboard" color="green" disabled={!selectedProfileId} onPress={handleGoToDashboard} />
+      </View>
     </View>
   );
 }
