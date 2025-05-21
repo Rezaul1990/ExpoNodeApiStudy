@@ -153,6 +153,7 @@ export default function ProfileScreen() {
       return;
     }
     await AsyncStorage.setItem('selectedProfile', JSON.stringify(selected));
+    console.log('Selected profile:', selected);
     router.push('/screens/dashboard/DashboardScreen');
   };
 
