@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 const MoneyScreen = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>MoneyScreen</Text>
     </View>
   )
@@ -11,4 +11,6 @@ const MoneyScreen = () => {
 
 export default MoneyScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+})

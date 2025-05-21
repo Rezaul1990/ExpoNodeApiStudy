@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 const YourprofileScreen = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>YourprofileScreen</Text>
     </View>
   )
@@ -11,4 +11,6 @@ const YourprofileScreen = () => {
 
 export default YourprofileScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+})

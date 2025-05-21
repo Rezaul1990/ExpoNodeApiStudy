@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 const ClasslistScreen = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>ClasslistScreen</Text>
     </View>
   )
@@ -11,4 +11,6 @@ const ClasslistScreen = () => {
 
 export default ClasslistScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+})

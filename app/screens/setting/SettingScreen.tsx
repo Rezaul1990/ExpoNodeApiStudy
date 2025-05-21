@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 const SettingScreen = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>SettingScreen</Text>
     </View>
   )
@@ -11,4 +11,6 @@ const SettingScreen = () => {
 
 export default SettingScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+})
