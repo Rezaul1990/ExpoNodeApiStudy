@@ -1,7 +1,6 @@
-// services/profileService.ts
 import { API_BASE_URL, ENDPOINTS } from '@/constants/Api';
 import { Profile } from '@/models/Profile';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuthHeader } from '@/utils/AuthHeaders';
 import axios from 'axios';
 
 export const getProfileData = async (token: string): Promise<Profile[]> => {
@@ -14,32 +13,16 @@ export const getProfileData = async (token: string): Promise<Profile[]> => {
 };
 
 export const addProfile = async (formData: FormData) => {
-  const token = await AsyncStorage.getItem('authToken');
-  if (!token) throw new Error('Auth token missing');
-  await axios.post(`${API_BASE_URL}${ENDPOINTS.PROFILES}`, formData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const headers = await getAuthHeader(true); // ✅ multipart
+  await axios.post(`${API_BASE_URL}${ENDPOINTS.PROFILES}`, formData, { headers });
 };
 
 export const updateProfile = async (id: string, formData: FormData) => {
-  const token = await AsyncStorage.getItem('authToken');
-  if (!token) throw new Error('Auth token missing');
-  await axios.put(`${API_BASE_URL}${ENDPOINTS.PROFILES}/${id}`, formData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const headers = await getAuthHeader(true); // ✅ multipart
+  await axios.put(`${API_BASE_URL}${ENDPOINTS.PROFILES}/${id}`, formData, { headers });
 };
 
 export const deleteProfile = async (id: string) => {
-  const token = await AsyncStorage.getItem('authToken');
-  if (!token) throw new Error('Auth token missing');
-
-  await axios.delete(`${API_BASE_URL}${ENDPOINTS.PROFILES}/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const headers = await getAuthHeader(); // ✅ default json
+  await axios.delete(`${API_BASE_URL}${ENDPOINTS.PROFILES}/${id}`, { headers });
 };

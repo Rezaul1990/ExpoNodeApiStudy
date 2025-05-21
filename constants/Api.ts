@@ -5,4 +5,5 @@ export const ENDPOINTS = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   PROFILES: '/profiles',
+  CLASSES: '/classes',
 };
