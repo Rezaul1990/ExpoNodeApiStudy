@@ -3,10 +3,12 @@ import { CoachModel } from '@/models/Coach';
 import {
   createClass,
   deleteClassById,
+  enrollInClass,
   getAllClasses,
   updateClassById,
 } from '@/services/classService';
 import { getAllCoaches } from '@/services/coachService';
+import { useAuthStore } from '@/store/authStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
@@ -41,8 +43,10 @@ const ClasslistScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
+      
     fetchClasses();
     loadCoaches();
   }, []);
@@ -133,6 +137,16 @@ const ClasslistScreen = () => {
     }
   };
 
+  const handleEnroll = async (classId: string) => {
+  try {
+    const res = await enrollInClass(classId);
+    Alert.alert('Success', res.message || 'Successfully enrolled');
+  } catch (err: any) {
+    console.error('Enroll error:', err);
+    Alert.alert('Error', err.response?.data?.message || 'Failed to enroll');
+  }
+};
+
   const formatDate = (date: Date) => {
     const d = new Date(date);
     return `${String(d.getDate()).padStart(2, '0')}/${String(
@@ -163,7 +177,8 @@ const ClasslistScreen = () => {
               <Text>Date: {formatDate(new Date(item.date))}</Text>
               <Text>Start: {formatTime(new Date(item.startTime))}</Text>
               <Text>End: {formatTime(new Date(item.endTime))}</Text>
-              {item.coaches?.length ? (
+              <Text>Coach: 
+                 {item.coaches?.length ? (
                   item.coaches.map((coach) => (
                     <View key={coach._id}>
                       <Text>👤 {coach.name}</Text>
@@ -172,9 +187,16 @@ const ClasslistScreen = () => {
                 ) : (
                   <Text>No coach assigned</Text>
                 )}
+              </Text>
+             
               <View style={styles.actions}>
                 <Button title="Update" onPress={() => openModal(item)} />
                 <Button title="Delete" color="red" onPress={() => handleDelete(item)} />
+                {Array.isArray(item.enrolledUsers) && user && item.enrolledUsers.includes(user._id) ? (
+                    <Button title="✅ Enrolled" disabled />
+                  ) : (
+                    <Button title="Enroll Class" color="#0080ff" onPress={() => handleEnroll(item._id)} />
+                  )}
               </View>
             </View>
           )}

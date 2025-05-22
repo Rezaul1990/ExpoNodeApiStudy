@@ -35,3 +35,30 @@ export const deleteClassById = async (id: string) => {
   const headers = await getAuthHeader();
   await axios.delete(`${API_BASE_URL}${ENDPOINTS.CLASSES}/${id}`, { headers });
 };
+
+// ✅ ENROLL in class
+export const enrollInClass = async (classId: string) => {
+  const headers = await getAuthHeader();
+  const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.CLASSES}/enroll/${classId}`, {}, { headers });
+  return response.data;
+};
+
+// ✅ GET: Enrolled classes for logged-in user
+export const getEnrolledClasses = async () => {
+  const headers = await getAuthHeader();
+  const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_ENROLLED_CLASSES}`, {
+     headers 
+  });
+  return response.data;
+};
+
+// ✅ GET: All enrolled classes (admin view)
+export const getAdminEnrolledClasses = async () => {
+  const headers = await getAuthHeader();
+
+  const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.ADMIN_ENROLLED_CLASSES}`, {
+    headers,
+  });
+
+  return response.data; // expects array of classes with enrolledUsers
+};

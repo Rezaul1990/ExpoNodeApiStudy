@@ -6,4 +6,6 @@ export const ENDPOINTS = {
   REGISTER: '/auth/register',
   PROFILES: '/profiles',
   CLASSES: '/classes',
+  USER_ENROLLED_CLASSES: '/classes/user-enroll-class',
+  ADMIN_ENROLLED_CLASSES: '/classes/admin-enroll-class',
 };

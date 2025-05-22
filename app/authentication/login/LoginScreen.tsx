@@ -1,4 +1,5 @@
 import { login } from '@/services/authService';
+import { useAuthStore } from '@/store/authStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -10,21 +11,28 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const user = { email, password };
-      const result = await login(user);
+    const credentials = { email, password };
+    const result = await login(credentials); // expects { token, user }
 
-      const token = result.token; 
-      if (token) {
-        await AsyncStorage.setItem('authToken', token); 
-        router.replace('/authentication/profile/ProfileScreen'); 
-        console.log('Token saved:', token);
-      } else {
-        throw 'Token not found in response';
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
-      Alert.alert('Error', typeof err === 'string' ? err : 'Login failed');
+    const token = result.token;
+    const user = result.user;
+
+    if (token && user) {
+      // ✅ Save token
+      await AsyncStorage.setItem('authToken', token);
+
+      // ✅ Store user in zustand + AsyncStorage
+      useAuthStore.getState().setUser(user);
+
+      console.log('Login success. User ID:', user._id);
+      router.replace('/authentication/profile/ProfileScreen');
+    } else {
+      throw 'Token or user not found in response';
     }
+  } catch (err) {
+    console.error('Login failed:', err);
+    Alert.alert('Error', typeof err === 'string' ? err : 'Login failed');
+  }
   };
 
   return (

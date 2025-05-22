@@ -1,4 +1,5 @@
 import { CoachModel } from "./Coach";
+import { User } from "./User";
 
 export interface ClassModel {
    _id: string;
@@ -9,5 +10,6 @@ export interface ClassModel {
   startTime: string; 
   endTime: string;
   coaches: CoachModel[];
+ enrolledUsers: User[];
   
 }
