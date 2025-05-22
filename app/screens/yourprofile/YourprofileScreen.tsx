@@ -11,7 +11,6 @@ const YourprofileScreen = () => {
   const fetchClasses = async () => {
     try {
       const data = await getAdminEnrolledClasses();
-      console.log('Fetched classes:', data);
       setClasses(data);
     } catch (error) {
       console.error('Error fetching classes:', error);
