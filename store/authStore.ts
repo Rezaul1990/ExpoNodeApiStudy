@@ -1,3 +1,4 @@
+import { Profile } from '@/models/Profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
@@ -12,6 +13,8 @@ interface AuthStore {
   setUser: (user: User) => void;
   loadUser: () => Promise<void>;
   logout: () => Promise<void>;
+  profile: Profile | null;
+   setProfile: (profile: Profile) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -33,5 +36,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
     await AsyncStorage.removeItem('authUser');
     await AsyncStorage.removeItem('authToken');
     set({ user: null });
+  },
+   profile: null,
+   setProfile: (profile) => {
+    set({ profile });
+    AsyncStorage.setItem('selectedProfile', JSON.stringify(profile));
   },
 }));

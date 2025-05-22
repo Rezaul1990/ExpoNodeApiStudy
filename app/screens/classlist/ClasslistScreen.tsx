@@ -43,10 +43,12 @@ const ClasslistScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+
   const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
+  const isAdmin = profile?.role === 'admin';
 
   useEffect(() => {
-      
     fetchClasses();
     loadCoaches();
   }, []);
@@ -66,7 +68,6 @@ const ClasslistScreen = () => {
     try {
       const data = await getAllCoaches();
       setCoaches(data);
-      console.log('Coaches loaded:', data);
     } catch (err) {
       console.error('Failed to load coaches:', err);
     }
@@ -121,7 +122,7 @@ const ClasslistScreen = () => {
         date: date.toISOString(),
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        coachIds: [selectedCoach], 
+        coachIds: [selectedCoach],
       };
 
       if (editId) {
@@ -138,20 +139,18 @@ const ClasslistScreen = () => {
   };
 
   const handleEnroll = async (classId: string) => {
-  try {
-    const res = await enrollInClass(classId);
-    Alert.alert('Success', res.message || 'Successfully enrolled');
-  } catch (err: any) {
-    console.error('Enroll error:', err);
-    Alert.alert('Error', err.response?.data?.message || 'Failed to enroll');
-  }
-};
+    try {
+      const res = await enrollInClass(classId);
+      Alert.alert('Success', res.message || 'Successfully enrolled');
+    } catch (err: any) {
+      console.error('Enroll error:', err);
+      Alert.alert('Error', err.response?.data?.message || 'Failed to enroll');
+    }
+  };
 
   const formatDate = (date: Date) => {
     const d = new Date(date);
-    return `${String(d.getDate()).padStart(2, '0')}/${String(
-      d.getMonth() + 1
-    ).padStart(2, '0')}/${d.getFullYear()}`;
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   };
 
   const formatTime = (date: Date) =>
@@ -159,9 +158,11 @@ const ClasslistScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
-        <Text style={styles.addButtonText}>➕ Add New Class</Text>
-      </TouchableOpacity>
+      {isAdmin && (
+        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+          <Text style={styles.addButtonText}>➕ Add New Class</Text>
+        </TouchableOpacity>
+      )}
 
       {loading ? (
         <Text>Loading...</Text>
@@ -177,46 +178,41 @@ const ClasslistScreen = () => {
               <Text>Date: {formatDate(new Date(item.date))}</Text>
               <Text>Start: {formatTime(new Date(item.startTime))}</Text>
               <Text>End: {formatTime(new Date(item.endTime))}</Text>
-              <Text>Coach: 
-                 {item.coaches?.length ? (
-                  item.coaches.map((coach) => (
-                    <View key={coach._id}>
-                      <Text>👤 {coach.name}</Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text>No coach assigned</Text>
-                )}
+              <Text>
+                Coach:{' '}
+                {item.coaches?.length
+                  ? item.coaches.map((coach) => (
+                      <View key={coach._id}>
+                        <Text>👤 {coach.name}</Text>
+                      </View>
+                    ))
+                  : 'No coach assigned'}
               </Text>
-             
+
               <View style={styles.actions}>
-                <Button title="Update" onPress={() => openModal(item)} />
-                <Button title="Delete" color="red" onPress={() => handleDelete(item)} />
+                {isAdmin && (
+                  <>
+                    <Button title="Update" onPress={() => openModal(item)} />
+                    <Button title="Delete" color="red" onPress={() => handleDelete(item)} />
+                  </>
+                )}
                 {Array.isArray(item.enrolledUsers) && user && item.enrolledUsers.includes(user._id) ? (
-                    <Button title="✅ Enrolled" disabled />
-                  ) : (
-                    <Button title="Enroll Class" color="#0080ff" onPress={() => handleEnroll(item._id)} />
-                  )}
+                  <Button title="✅ Enrolled" disabled />
+                ) : (
+                  <Button title="Enroll Class" color="#0080ff" onPress={() => handleEnroll(item._id)} />
+                )}
               </View>
             </View>
           )}
         />
       )}
 
-      {/* Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {editId ? 'Update Class' : 'Add New Class'}
-            </Text>
+            <Text style={styles.modalTitle}>{editId ? 'Update Class' : 'Add New Class'}</Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Class Name"
-              value={name}
-              onChangeText={setName}
-            />
+            <TextInput style={styles.input} placeholder="Class Name" value={name} onChangeText={setName} />
             <TextInput
               style={[styles.input, { height: 80 }]}
               placeholder="Description"
@@ -232,7 +228,6 @@ const ClasslistScreen = () => {
               keyboardType="numeric"
             />
 
-            {/* Dropdown Picker */}
             <Picker
               selectedValue={selectedCoach}
               onValueChange={(value) => setSelectedCoach(value)}
@@ -273,13 +268,12 @@ const ClasslistScreen = () => {
 
             <View style={styles.modalActions}>
               <Button title="Cancel" onPress={() => setModalVisible(false)} />
-              <Button title="Save" onPress={handleSave} />
+              <Button title="Save" onPress={handleSave} disabled={!isAdmin} />
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Pickers */}
       {showDatePicker && (
         <DateTimePicker
           value={date}
